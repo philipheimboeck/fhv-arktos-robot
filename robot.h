@@ -8,13 +8,13 @@
 #ifndef ARCTOS_ROBOT_ROBOT_H
 #define ARCTOS_ROBOT_ROBOT_H
 
-const int BOARD_ID = 0;         ///> ID of board
-const int MOTOR_LEFT = 1;       ///> ID of left motor
-const int MOTOR_RIGHT = 2;      ///> ID of right motor
+#define BOARD_ID 		0     	///> ID of board
+#define MOTOR_LEFT		1    	///> ID of left motor
+#define MOTOR_RIGHT		2     	///> ID of right motor
 
-const int VELOCITY_MAX = 3000;  ///> Max velocity of robot
-const int VELOCITY_MIN = -3000; ///> Min velocity of robot
-const int VELOCITY_STOP = 0;    ///> Stop velocity of robot
+#define VELOCITY_MAX	3000  	///> Max velocity of robot
+#define VELOCITY_MIN	-3000 	///> Min velocity of robot
+#define VELOCITY_STOP	0    	///> Stop velocity of robot
 
 /**
  * Initialises robot
