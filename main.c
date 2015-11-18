@@ -11,10 +11,10 @@ int main() {
     printf("Init\n");
 
     robot_init();
-    //robot_drive_left(500);
+    //robot_drive_left(250);
+    robot_turn_left();
 
     while(1) {
-        printf("Test\n");
         // rfid tag read?
         // send bluetooth
 
@@ -22,6 +22,6 @@ int main() {
         // evalute singals
     }
 
-    robot_deconstruct();
+    robot_disconnect();
     return 0;
 }

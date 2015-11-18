@@ -22,9 +22,15 @@
 void robot_init();
 
 /**
- * Turn off robot
+ * Connect to robot
+ * with board id
  */
-void robot_deconstruct();
+void robot_connect();
+
+/**
+ * Disconnect from robot
+ */
+void robot_disconnect();
 
 /**
  * Set left motor to given velocity in ratio to max velocity
