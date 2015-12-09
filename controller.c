@@ -8,8 +8,8 @@
 #define RFID_BUFFER_SIZE 12
 #define BLUETHOOTH_BUFFER_SIZE 1024
 
-static int fd_rfid;
-static int fd_bluetooth;
+static int fd_rfid = -1;
+static int fd_bluetooth = -1;
 static location_t last_location;
 
 void controller_init(robot_options_t options) {
@@ -32,8 +32,13 @@ void controller_start() {
     // Loop while no error occurs
     while (err == 0) {
         // Read from the inputs
-        ssize_t size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_BUFFER_SIZE);
-        ssize_t size_b = controller_bluetooth_read(fd_bluetooth, bluetooth_buffer, BLUETHOOTH_BUFFER_SIZE);
+        ssize_t size_r = 0, size_b = 0;
+        if (fd_rfid >= 0) {
+            size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_BUFFER_SIZE);
+        }
+        if (fd_bluetooth >= 0) {
+            size_b = controller_bluetooth_read(fd_bluetooth, bluetooth_buffer, BLUETHOOTH_BUFFER_SIZE);
+        }
 
         if(size_r > 0) {
             // RFID data received

@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
     options.serial_port_options_bluetooth.port_name = bluetooth_port;
     options.serial_port_options_bluetooth.speed = B115200;
     options.serial_port_options_rfid.port_name = rfid_port;
-    options.serial_port_options_rfid.speed = B115200;
+    options.serial_port_options_rfid.speed = B2400;
 
     controller_init(options);
     controller_start();
