@@ -12,7 +12,7 @@
 #include "communication/serial.h"
 #include "general.h"
 
-void testSerial();
+void testSerial(const char * port);
 
 int main(int argc, char* argv[]) {
     printf("Init\n");
