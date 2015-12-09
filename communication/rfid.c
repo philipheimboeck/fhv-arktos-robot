@@ -21,7 +21,7 @@ int rfid_init(serial_port_options_t* options) {
 	{
 		error_message("RFID: Unable to get port attributes");
 		close(fd);
-		return -1;
+		return 0;
 	}
 
 	// Set the baud rates
@@ -29,7 +29,7 @@ int rfid_init(serial_port_options_t* options) {
 	{
 		error_message("RFID: Unable to set baud rate");
 		close(fd);
-		return -1;
+		return 0;
 	}
 
 	// Enable the receiver and set local mode
@@ -42,13 +42,13 @@ int rfid_init(serial_port_options_t* options) {
 	if(tcsetattr(fd, TCSAFLUSH, &port_attrs) != 0) {
 		error_message("RFID: Unable to set port attributes");
 		close(fd);
-		return -1;
+		return 0;
 	}
 
 	return fd;
 }
 
-int rfid_read(int fd, char* buffer, size_t buffer_size) {
+ssize_t rfid_read(int fd, char* buffer, size_t buffer_size) {
     // init input set
     fd_set input;
     FD_ZERO(&input);
@@ -57,24 +57,26 @@ int rfid_read(int fd, char* buffer, size_t buffer_size) {
     // select call
     if(select(fd+1, &input, NULL, NULL, NULL) == -1) {
         error_message("RFID: Selection timeout");
-        return -1;
+        return 0;
     }
 
     // check for input
+    int received_bytes;
     if (FD_ISSET(fd, &input)) {
     	// read input and save it into buffer
-        if(read(fd, buffer, buffer_size) < 0) {
+        if((received_bytes = read(fd, buffer, buffer_size)) < 0) {
         	write(2, "An error occurred in the read.\n", 31);
         }
 
         // start byte and stop byte have to be correct
         if (buffer[0] != START_BYTE && buffer[buffer_size - 1] != STOP_BYTE) {
-        	return -1;
+        	error_message("RFID: Start or Stop byte is not correct");
+        	return 0;
         }
     } else {
     	// nothing set
-    	return -1;
+    	return 0;
     }
 
-    return 1;
+    return received_bytes;
 }

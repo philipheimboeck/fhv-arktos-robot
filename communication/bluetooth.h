@@ -5,12 +5,13 @@
 #ifndef ARCTOS_ROBOT_BLUETOOTH_H
 #define ARCTOS_ROBOT_BLUETOOTH_H
 
+#include <unistd.h>
 #include <stddef.h>
 #include "../general.h"
 
 int bluetooth_init(serial_port_options_t* options);
 
-int bluetooth_read(int fd, char* buffer, size_t buffer_size);
+ssize_t bluetooth_read(int fd, char* buffer, size_t buffer_size);
 
 int bluetooth_write(int fd, char* data);
 

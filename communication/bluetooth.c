@@ -8,38 +8,28 @@
 #include "bluetooth.h"
 #include "serial.h"
 
-void testSerial(const char* port) {
-
-    int fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
+int bluetooth_init(serial_port_options_t* options) {
+    int fd = open(options->port_name, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
-        error_message("error %d opening %s: %s", errno, port, strerror(errno));
-        return;
+        error_message("error %d opening %s: %s", errno, options->port_name, strerror(errno));
+        return -1;
     }
 
-    set_interface_attribs(fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-    set_blocking(fd, 0);                // set no blocking
+    // Set baud rate, 8n1 (no parity)
+    set_interface_attribs(fd, options->speed, 0);
+    // Set no blocking
+    set_blocking(fd, 0);
 
-    write(fd, "hello!\n", 7);           // send 7 character greeting
-
-    usleep((7 + 25) * 100);             // sleep enough to transmit the 7 plus
-    // receive 25:  approx 100 uS per char transmit
-    char buf[100];
-    ssize_t n = read(fd, buf, sizeof buf);  // read up to 100 characters if ready to read
+    return fd;
 }
 
-int bluetooth_init(serial_port_options_t* options) {
-    testSerial(options->port_name);
-    return 1;
-}
-
-int bluetooth_read(int fd, char* buffer, size_t buffer_size) {
-    // Todo: Implement
-    return 1;
+ssize_t bluetooth_read(int fd, char* buffer, size_t buffer_size) {
+    return read(fd, buffer, buffer_size);
 }
 
 int bluetooth_write(int fd, char* data) {
-    // Todo: Implement
-    return 1;
+    write(fd, data, strlen(data));
+    return 0;
 }
 
 
