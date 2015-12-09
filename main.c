@@ -4,59 +4,48 @@
  * Created on: 22.10.15
  *     Author: Nino Schoch
  */
-#include <stdio.h>
 #include <sys/fcntl.h>
 #include <sys/errno.h>
 #include <string.h>
 #include "robot.h"
 #include "communication/serial.h"
+#include "communication/bluetooth.h"
 #include "general.h"
+#include "controller.h"
+#include "communication/rfid.h"
 
-void testSerial(const char * port);
+void testSerial(const char* port);
 
 int main(int argc, char* argv[]) {
-    printf("Init\n");
 
-    char* port = "/dev/pts/6";
-    printf("Number of arguments: %d\n", argc);
-    if(argc > 1) {
-        port = argv[1];
+    // Get the input params
+    char* bluetooth_port = "/dev/pts/6";
+    char* rfid_port = "/dev/ttyUSB0";
+    if (argc > 1) {
+        bluetooth_port = argv[1];
+    }
+    if (argc > 2) {
+        rfid_port = argv[2];
     }
 
     //robot_init();
     //robot_drive_left(250);
     //robot_turn_left();
 
-    printf("Using port: %s\n", port);
-    testSerial(port);
+    robot_options_t options;
+    options.callbacks.controller_bluetooth_init = bluetooth_init;
+    options.callbacks.controller_bluetooth_read = bluetooth_read;
+    options.callbacks.controller_bluetooth_write = bluetooth_write;
+    options.callbacks.controller_rfid_init = rfid_init;
+    options.callbacks.controller_rfid_read = rfid_read;
+    options.serial_port_options_bluetooth.port_name = bluetooth_port;
+    options.serial_port_options_bluetooth.speed = B115200;
+    options.serial_port_options_rfid.port_name = rfid_port;
+    options.serial_port_options_rfid.speed = B115200;
 
-    while (1) {
-        // rfid tag read?
-        // send bluetooth
+    controller_init(options);
+    controller_start();
 
-        // wait for bluetooth inputs
-        // evalute singals
-    }
-
-    robot_disconnect();
+    //robot_disconnect();
     return 0;
-}
-
-void testSerial(const char * port) {
-
-    int fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
-    if (fd < 0) {
-        error_message("error %d opening %s: %s", errno, port, strerror(errno));
-        return;
-    }
-
-    set_interface_attribs(fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-    set_blocking(fd, 0);                // set no blocking
-
-    write(fd, "hello!\n", 7);           // send 7 character greeting
-
-    usleep((7 + 25) * 100);             // sleep enough to transmit the 7 plus
-    // receive 25:  approx 100 uS per char transmit
-    char buf[100];
-    ssize_t n = read(fd, buf, sizeof buf);  // read up to 100 characters if ready to read
 }
