@@ -8,21 +8,19 @@
 #include "includes/DMCC/DMCC.h"
 #include "robot.h"
 
-#define CONTROLLER_MAX		500			///> Highest input of controller to calculate in ratio
-
 static int session = -1; 				///> Session received by DMCCstart
 
 /**
- * Calculate velocity of given input
- * based on highest input of controller
+ * Calculate velocity of given input (in percentage)
  */
-static void set_velocity(int motor, int input) {
-    double velRatio = input / (double) CONTROLLER_MAX;
-    if (velRatio > 1) {
-    	velRatio = 1;
-    }
+static void set_velocity(int motor, double input) {
+	if (input > 100) {
+		input = 100;
+	} else if (input < -100) {
+		input = -100;
+	}
 
-    setMotorPower(session, motor, velRatio * VELOCITY_MAX);
+    setMotorPower(session, motor, input / 100.0 * VELOCITY_MAX);
 }
 
 void robot_init() {
@@ -44,13 +42,13 @@ void robot_disconnect() {
     session = -1;
 }
 
-void robot_drive_left(int input) {
+void robot_drive_left(double input) {
 	robot_connect();
 
     set_velocity(MOTOR_LEFT, input);
 }
 
-void robot_drive_right(int input) {
+void robot_drive_right(double input) {
 	robot_connect();
 
     set_velocity(MOTOR_RIGHT, input);
