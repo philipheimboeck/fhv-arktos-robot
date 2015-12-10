@@ -37,6 +37,7 @@ void controller_start() {
             size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_BUFFER_SIZE);
         }
         if (fd_bluetooth >= 0) {
+        	//controller_bluetooth_write(fd_bluetooth, "test");
             size_b = controller_bluetooth_read(fd_bluetooth, bluetooth_buffer, BLUETHOOTH_BUFFER_SIZE);
         }
 
@@ -49,6 +50,7 @@ void controller_start() {
             err = controller_update_location(location);
         }
         if(size_b > 0) {
+        	error_message("bla");
             // Bluetooth data received
         }
 
