@@ -13,7 +13,7 @@ int rfid_init(serial_port_options_t* options) {
 	int fd;
 	if ((fd = open(options->port_name, O_RDONLY | O_NOCTTY)) == -1) {
 		error_message("RFID: Unable to open port");
-		return 0;
+		return -1;
 	}
 
 	// Get the current attributes for the port
@@ -22,7 +22,7 @@ int rfid_init(serial_port_options_t* options) {
 	{
 		error_message("RFID: Unable to get port attributes");
 		close(fd);
-		return 0;
+		return -1;
 	}
 
 	// Set the baud rates
@@ -30,7 +30,7 @@ int rfid_init(serial_port_options_t* options) {
 	{
 		error_message("RFID: Unable to set baud rate");
 		close(fd);
-		return 0;
+		return -1;
 	}
 
 	// Enable the receiver and set local mode
@@ -43,7 +43,7 @@ int rfid_init(serial_port_options_t* options) {
 	if(tcsetattr(fd, TCSAFLUSH, &port_attrs) != 0) {
 		error_message("RFID: Unable to set port attributes");
 		close(fd);
-		return 0;
+		return -1;
 	}
 
 	return fd;
