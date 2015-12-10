@@ -32,7 +32,7 @@
 
 #include "DMCC.h"
 
-char *Compatible_Versions[] = {"05", "06"};
+char *Compatible_Versions[] = {(char*) "05", (char*) "06"};
 
 // ------------------------
 // Threshold Values Depending on Encoder
