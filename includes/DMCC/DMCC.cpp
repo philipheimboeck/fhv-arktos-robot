@@ -155,13 +155,13 @@ char *validCapeAddress(unsigned char addr)
 {
     // Check if the DMCC cape is attached to the beaglebone at given addr
     if (addr == 0x2c) {
-        return "1-0054";
+        return (char*)"1-0054";
     } else if (addr == 0x2d) {
-        return "1-0055";
+        return (char*)"1-0055";
     } else if (addr == 0x2e) {
-        return "1-0056";
+        return (char*)"1-0056";
     } else if (addr == 0x2f) {
-        return "1-0057";
+        return (char*)"1-0057";
     } else {
         return NULL;
     }
@@ -724,7 +724,7 @@ int moveUntilPos(int fd, unsigned int motor, int pos, unsigned int tLimit)
     // Wait until the motor has reached the desired position or timeout
     while (error > threshold) {
         // Check if have waited longer than maximum time limit
-        if ((currentTime - startTime) > tLimit) {
+        if ((unsigned int)(currentTime - startTime) > tLimit) {
 			printf("Could not reach desired target within time alloted\n");
             return -1;
         }
@@ -786,7 +786,7 @@ int moveUntilVel(int fd, unsigned int motor, int vel, unsigned int tLimit)
 
     // Wait until the motor has reached the desired position or timeout
     while (error > threshold) {
-        if ((currentTime - startTime) > tLimit) {
+        if ((unsigned int)(currentTime - startTime) > tLimit) {
             printf("Could not reach desired target within time alloted\n");
             return -1;
         }
@@ -839,7 +839,7 @@ int moveAllUntilPos(int fd, int pos1, int pos2, unsigned int tLimit)
     // Wait until both motors are within the desired threshold or timeout
     while ((error1 > QEI_Threshold_1) || (error2 > QEI_Threshold_2)) {
         // Check if the time limit for the motors has been passed
-        if ((currentTime - startTime) > tLimit) {
+        if ((unsigned int)(currentTime - startTime) > tLimit) {
             printf("Could not reach desired target within time alloted\n");
             return -1;
         }
@@ -895,7 +895,7 @@ int moveAllUntilVel(int fd, int vel1, int vel2, unsigned int tLimit)
     // Wait until both motors are within the desired threshold or timeout
     while ((error1 > QEI_Vel_Threshold_1) || (error2 > QEI_Vel_Threshold_2)) {
         // Check if the time limit for the motors has been passed
-        if ((currentTime - startTime) > tLimit) {
+        if ((unsigned int)(currentTime - startTime) > tLimit) {
             printf("Could not reach desired target within time alloted\n");
             return -1;
         }
