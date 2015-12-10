@@ -17,6 +17,7 @@ protected:
     ProtocolLayer* lowerLayer;
     virtual pdu_t* compose_pdu(pdu_t* in) = 0;
     virtual void decompose_pdu(pdu_t* in) = 0;
+    pdu_t* copy_pdu(pdu_t* in, size_t increase);
 
 public:
     ProtocolLayer(ProtocolLayer* lower);

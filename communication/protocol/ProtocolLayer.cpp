@@ -52,15 +52,22 @@ bool ProtocolLayer::receive(pdu_t* pdu) {
     return result;
 }
 
+pdu_t* ProtocolLayer::copy_pdu(pdu_t* in, size_t increase) {
+	size_t new_size = in->length + 0;
+	char* new_msg = (char*) malloc(new_size * sizeof(char));
+	pdu_t* out = (pdu_t*) malloc(sizeof(pdu_t));
+	out->message = new_msg;
+	out->length = new_size;
+
+	return out;
+}
 
 /** Transport Layer **/
 
 pdu_t* TransportLayer::compose_pdu(pdu_t* in) {
-    size_t new_size = sizeof(in);
-    pdu_t* out = (pdu_t*) malloc(new_size);
-    strncpy(out->message, in->message, in->length);
-    out->length = new_size;
-    return out;
+	pdu_t* out = copy_pdu(in, 0);
+    memcpy(out->message, in->message, in->length);
+	return out;
 }
 
 void TransportLayer::decompose_pdu(pdu_t* in) {
@@ -97,11 +104,9 @@ bool TransportLayer::receive(pdu_t* pdu) {
 
 
 pdu_t* SessionLayer::compose_pdu(pdu_t* in) {
-    size_t new_size = sizeof(in);
-    pdu_t* out = (pdu_t*) malloc(new_size);
-    strncpy(out->message, in->message, in->length);
-    out->length = new_size;
-    return out;
+	pdu_t* out = copy_pdu(in, 0);
+	memcpy(out->message, in->message, in->length);
+	return out;
 }
 
 void SessionLayer::decompose_pdu(pdu_t* in) {
@@ -113,11 +118,9 @@ void SessionLayer::decompose_pdu(pdu_t* in) {
 
 
 pdu_t* PresentationLayer::compose_pdu(pdu_t* in) {
-    size_t new_size = sizeof(in);
-    pdu_t* out = (pdu_t*) malloc(new_size);
-    strncpy(out->message, in->message, in->length);
-    out->length = new_size;
-    return out;
+	pdu_t* out = copy_pdu(in, 0);
+	memcpy(out->message, in->message, in->length);
+	return out;
 }
 
 void PresentationLayer::decompose_pdu(pdu_t* in) {
@@ -129,10 +132,8 @@ void PresentationLayer::decompose_pdu(pdu_t* in) {
 
 
 pdu_t* ApplicationLayer::compose_pdu(pdu_t* in) {
-    size_t new_size = sizeof(in);
-    pdu_t* out = (pdu_t*) malloc(new_size);
-    strncpy(out->message, in->message, in->length);
-    out->length = new_size;
+    pdu_t* out = copy_pdu(in, 0);
+    memcpy(out->message, in->message, in->length);
     return out;
 }
 

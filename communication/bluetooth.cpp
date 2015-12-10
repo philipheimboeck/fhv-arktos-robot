@@ -11,7 +11,8 @@ Bluetooth::Bluetooth(serial_port_options_t* options) {
     fd = open(options->port_name, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
         error_message("error %d opening %s: %s", errno, options->port_name, strerror(errno));
-        throw "error";
+        //throw "error";
+        return;
     }
 
     // Set baud rate, 8n1 (no parity)
@@ -22,7 +23,7 @@ Bluetooth::Bluetooth(serial_port_options_t* options) {
 
 ssize_t Bluetooth::bluetooth_read(char* buffer, size_t buffer_size) {
     if(fd < 0) {
-        return -1;
+        return 0;
     }
     return read(fd, buffer, buffer_size);
 }

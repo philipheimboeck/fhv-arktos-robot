@@ -4,8 +4,7 @@
 
 #include <string.h>
 #include "Controller.h"
-
-#define RFID_BUFFER_SIZE 12
+#include "communication/rfid.h"
 
 Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
     this->protocol = protocol;
@@ -19,7 +18,7 @@ Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
 
 
 void Controller::start() {
-    char rfid_buffer[RFID_BUFFER_SIZE];
+    char rfid_buffer[RFID_LEN];
     int err = 0;
     pdu_t bluetooth_data;
 
@@ -27,7 +26,7 @@ void Controller::start() {
     while (err == 0) {
 
         // Read from the inputs
-        ssize_t size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_BUFFER_SIZE);
+        ssize_t size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_LEN);
         this->protocol->receive(&bluetooth_data);
 
         if (size_r > 0) {

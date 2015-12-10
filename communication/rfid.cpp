@@ -6,7 +6,7 @@
 #include <unistd.h> // for read & write functions
 #include <fcntl.h> // for open related function
 #include <sys/select.h> // fd_set functions
-
+#include "serial.h"
 
 int rfid_init(serial_port_options_t* options) {
 	// file descriptor for the port
@@ -15,6 +15,8 @@ int rfid_init(serial_port_options_t* options) {
 		error_message("RFID: Unable to open port");
 		return -1;
 	}
+
+    set_interface_attribs(fd, options->speed, 0);
 
 	// Get the current attributes for the port
 	struct termios port_attrs;
@@ -26,18 +28,19 @@ int rfid_init(serial_port_options_t* options) {
 	}
 
 	// Set the baud rates
-	if (cfsetispeed(&port_attrs, options->speed) != 0 || cfsetospeed(&port_attrs, options->speed) != 0)
+	/*if (cfsetispeed(&port_attrs, options->speed) != 0 || cfsetospeed(&port_attrs, options->speed) != 0)
 	{
 		error_message("RFID: Unable to set baud rate");
 		close(fd);
 		return -1;
-	}
+	}*/
 
 	// Enable the receiver and set local mode
 	// Set the new attributes for the port
-	port_attrs.c_cflag |= (CLOCAL|CREAD);
-	port_attrs.c_cflag &= ~CSIZE; // Mask the character size bits
-	port_attrs.c_cflag |= CS8;    // Select 8 data bits
+	//port_attrs.c_cflag |= (CLOCAL|CREAD);
+	//port_attrs.c_cflag &= ~CSIZE; // Mask the character size bits
+	//port_attrs.c_cflag |= CS8;    // Select 8 data bits
+    port_attrs.c_cc[VTIME] = 1;            // 0 seconds read timeout
 	port_attrs.c_cc[VMIN] = RFID_LEN; // Read returns only with RFID_LEN
 
 	if(tcsetattr(fd, TCSAFLUSH, &port_attrs) != 0) {
@@ -66,11 +69,12 @@ ssize_t rfid_read(int fd, char* buffer, size_t buffer_size) {
     if (FD_ISSET(fd, &input)) {
     	// read input and save it into buffer
         if((received_bytes = read(fd, buffer, buffer_size)) < 0) {
-        	write(2, "An error occurred in the read.\n", 31);
+        	//write(2, "An error occurred in the read.\n", 31);
+        	error_message("RFID: Read error occurred");
         }
 
         // start byte and stop byte have to be correct
-        if (buffer[0] != START_BYTE && buffer[buffer_size - 1] != STOP_BYTE) {
+        if (buffer[0] != START_BYTE || buffer[buffer_size - 1] != STOP_BYTE || received_bytes != RFID_LEN) {
         	error_message("RFID: Start or Stop byte is not correct");
         	return 0;
         }
