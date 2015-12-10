@@ -13,6 +13,7 @@ int rfid_init(serial_port_options_t* options) {
 	int fd;
 	if ((fd = open(options->port_name, O_RDONLY | O_NOCTTY)) == -1) {
 		error_message("RFID: Unable to open port");
+		return 0;
 	}
 
 	// Get the current attributes for the port
