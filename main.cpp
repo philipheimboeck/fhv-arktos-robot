@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     options.callbacks.controller_rfid_init = rfid_init;
     options.callbacks.controller_rfid_read = rfid_read;
     options.serial_port_options_rfid.port_name = rfid_port;
-    options.serial_port_options_rfid.speed = B115200;
+    options.serial_port_options_rfid.speed = B2400;
 
     serial_port_options_t bluetooth_options;
     bluetooth_options.port_name = bluetooth_port;

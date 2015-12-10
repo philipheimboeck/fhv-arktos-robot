@@ -35,12 +35,12 @@ void robot_disconnect();
 /**
  * Set left motor to given velocity in ratio to max velocity
  */
-void robot_drive_left(int input);
+void robot_drive_left(double input);
 
 /**
  * Set right motor to given velocity in ratio to max velocity
  */
-void robot_drive_right(int input);
+void robot_drive_right(double input);
 
 /**
  * Set left motor to min speed

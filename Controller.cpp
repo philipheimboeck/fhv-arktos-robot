@@ -21,12 +21,13 @@ Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
 void Controller::start() {
     char rfid_buffer[RFID_BUFFER_SIZE];
     int err = 0;
+    pdu_t bluetooth_data;
 
     // Loop while no error occurs
     while (err == 0) {
+
         // Read from the inputs
         ssize_t size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_BUFFER_SIZE);
-        pdu_t bluetooth_data;
         this->protocol->receive(&bluetooth_data);
 
         if (size_r > 0) {
