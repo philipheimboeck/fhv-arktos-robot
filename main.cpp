@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
     serial_port_options_t bluetooth_options;
     bluetooth_options.port_name = bluetooth_port;
-    bluetooth_options.speed = B115200;
+    bluetooth_options.speed = B9600;
 
     ProtocolLayer* protocol = new ApplicationLayer(
             new PresentationLayer(

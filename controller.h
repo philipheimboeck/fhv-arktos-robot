@@ -29,6 +29,7 @@ typedef struct {
 class Controller {
 private:
     int fd_rfid;
+    
     location_t last_location;
 
     ProtocolLayer* protocol;
