@@ -8,7 +8,7 @@
 #include <sys/termios.h>
 
 typedef struct {
-    char* port_name;
+    const char* port_name;
     speed_t speed;
 } serial_port_options_t;
 

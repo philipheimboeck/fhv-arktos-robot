@@ -2,34 +2,36 @@
 // Created by Philip Heimböck (Privat) on 09.12.15.
 //
 
-#include <sys/fcntl.h>
-#include <sys/errno.h>
 #include <string.h>
-#include "bluetooth.h"
+#include <sys/fcntl.h>
+#include "Bluetooth.h"
 #include "serial.h"
 
-int bluetooth_init(serial_port_options_t* options) {
-    int fd = open(options->port_name, O_RDWR | O_NOCTTY | O_SYNC);
+Bluetooth::Bluetooth(serial_port_options_t* options) {
+    fd = open(options->port_name, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
         error_message("error %d opening %s: %s", errno, options->port_name, strerror(errno));
-        return -1;
+        throw "error";
     }
 
     // Set baud rate, 8n1 (no parity)
     set_interface_attribs(fd, options->speed, 0);
     // Set no blocking
     set_blocking(fd, 0);
-
-    return fd;
 }
 
-ssize_t bluetooth_read(int fd, char* buffer, size_t buffer_size) {
+ssize_t Bluetooth::bluetooth_read(char* buffer, size_t buffer_size) {
+    if(fd < 0) {
+        return -1;
+    }
     return read(fd, buffer, buffer_size);
 }
 
-int bluetooth_write(int fd, char* data) {
+bool Bluetooth::bluetooth_write(const char* data, size_t data_length) {
+    if(fd < 0) {
+        return false;
+    }
+
     write(fd, data, strlen(data));
-    return 0;
+    return true;
 }
-
-

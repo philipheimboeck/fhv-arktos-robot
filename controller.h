@@ -5,26 +5,19 @@
 #ifndef ARCTOS_ROBOT_CONTROLLER_H
 #define ARCTOS_ROBOT_CONTROLLER_H
 
-#include <stddef.h>
+#include <stdio.h>
 #include "general.h"
-#include <unistd.h>
+#include "communication/protocol/ProtocolLayer.h"
 
 #define RFID_TAG_LENGTH 10
 
 typedef struct {
-    int (*controller_rfid_init)(serial_port_options_t* options);
+    int (* controller_rfid_init)(serial_port_options_t* options);
 
-    ssize_t (*controller_rfid_read)(int fd, char*, size_t);
-
-    int (*controller_bluetooth_init)(serial_port_options_t* options);
-
-    ssize_t (*controller_bluetooth_read)(int fd, char*, size_t);
-
-    int (*controller_bluetooth_write)(int fd, char* data);
+    ssize_t (* controller_rfid_read)(int fd, char*, size_t);
 } robot_callbacks_t;
 
 typedef struct {
-    serial_port_options_t serial_port_options_bluetooth;
     serial_port_options_t serial_port_options_rfid;
     robot_callbacks_t callbacks;
 } robot_options_t;
@@ -33,42 +26,36 @@ typedef struct {
     char id[RFID_TAG_LENGTH];
 } location_t;
 
-void controller_init(robot_options_t options);
+class Controller {
+private:
+    int fd_rfid;
+    location_t last_location;
 
-void controller_start();
+    ProtocolLayer* protocol;
 
-int controller_update_location(location_t location);
+    int compare_locations(location_t* l1, location_t* l2);
 
-int controller_notify_server(location_t* location);
+    bool notify_server(location_t* location);
 
-static int controller_compare_locations(location_t* l1, location_t* l2);
+    bool update_location(location_t location);
 
-/* Callbacks */
+    /* Callbacks */
 
+    /**
+     * Returns a file descriptor
+     */
+    int (* controller_rfid_init)(serial_port_options_t* options);
 
-/**
- * Returns a file descriptor
- */
-int (*controller_rfid_init)(serial_port_options_t* options);
+    /**
+     * Reads the input and saves it into the buffer
+     */
+    ssize_t (* controller_rfid_read)(int fd, char*, size_t);
 
-/**
- * Reads the input and saves it into the buffer
- */
-ssize_t (*controller_rfid_read)(int fd, char*, size_t);
+public:
+    Controller(robot_options_t* options, ProtocolLayer* protocol);
 
-/**
- * Returns a file descriptor
- */
-int (*controller_bluetooth_init)(serial_port_options_t* options);
+    void start();
 
-/**
- * Reads the input and saves it into the buffer
- */
-ssize_t (*controller_bluetooth_read)(int fd, char*, size_t);
-
-/**
- * Sends data through the device
- */
-int (*controller_bluetooth_write)(int fd, char* data);
+};
 
 #endif //ARCTOS_ROBOT_CONTROLLER_H
