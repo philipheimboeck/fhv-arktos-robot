@@ -16,7 +16,10 @@ int rfid_init(serial_port_options_t* options) {
 		return -1;
 	}
 
+    // Set baud rate, 8n1 (no parity)
     set_interface_attribs(fd, options->speed, 0);
+    // Set no blocking
+    set_blocking(fd, 0);
 
 	// Get the current attributes for the port
 	struct termios port_attrs;
@@ -27,20 +30,8 @@ int rfid_init(serial_port_options_t* options) {
 		return -1;
 	}
 
-	// Set the baud rates
-	/*if (cfsetispeed(&port_attrs, options->speed) != 0 || cfsetospeed(&port_attrs, options->speed) != 0)
-	{
-		error_message("RFID: Unable to set baud rate");
-		close(fd);
-		return -1;
-	}*/
-
 	// Enable the receiver and set local mode
 	// Set the new attributes for the port
-	//port_attrs.c_cflag |= (CLOCAL|CREAD);
-	//port_attrs.c_cflag &= ~CSIZE; // Mask the character size bits
-	//port_attrs.c_cflag |= CS8;    // Select 8 data bits
-    port_attrs.c_cc[VTIME] = 1;            // 0 seconds read timeout
 	port_attrs.c_cc[VMIN] = RFID_LEN; // Read returns only with RFID_LEN
 
 	if(tcsetattr(fd, TCSAFLUSH, &port_attrs) != 0) {
@@ -59,8 +50,11 @@ ssize_t rfid_read(int fd, char* buffer, size_t buffer_size) {
     FD_SET(fd, &input);
 
     // select call
-    if(select(fd+1, &input, NULL, NULL, NULL) == -1) {
-        error_message("RFID: Selection timeout");
+    //TODO: extract to thread - thread could be blocked whole time
+    timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+    if(select(fd+1, &input, NULL, NULL, &timeout) == -1) {
         return 0;
     }
 
