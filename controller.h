@@ -28,6 +28,9 @@ typedef struct {
 
 class Controller {
 private:
+
+    /** Variables **/
+
     int fd_rfid;
 
     location_t last_location;
@@ -35,6 +38,8 @@ private:
     ProtocolLayer* protocol;
 
     bool shutdown_requested = false;
+
+    /** Methods **/
 
     int compare_locations(location_t* l1, location_t* l2);
 

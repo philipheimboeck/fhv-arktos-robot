@@ -5,6 +5,7 @@
 #include <string.h>
 #include "Controller.h"
 #include "communication/rfid.h"
+#include "communication/protocol/ProtocolLayer.h"
 
 Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
     this->protocol = protocol;
@@ -18,7 +19,9 @@ Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
 
 void Controller::runBluetooth() {
     while (!this->shutdown_requested) {
+        char bluetooth_message[BLUETHOOTH_BUFFER_SIZE];
         pdu_t bluetooth_data;
+        bluetooth_data.message = bluetooth_message;
 
         this->protocol->receive(&bluetooth_data);
 
