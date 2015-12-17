@@ -91,6 +91,8 @@ bool TransportLayer::receive(pdu_t* pdu) {
 
     if(size > 0) {
         pdu->length = (size_t) size;
+    } else {
+        pdu->length = 0;
     }
 
     return size > 0;
