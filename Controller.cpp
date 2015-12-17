@@ -27,6 +27,9 @@ void Controller::runBluetooth() {
         this->protocol->receive(&bluetooth_data);
 
         if (bluetooth_data.length > 0) {
+        	printf("received");
+        	bluetooth_data.message[bluetooth_data.length-1] = '\0';
+        	printf("received bluetooth data: %s", bluetooth_data.message);
             // Bluetooth data received
         }
     }
