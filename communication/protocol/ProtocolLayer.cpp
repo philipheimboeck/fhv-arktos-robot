@@ -19,8 +19,8 @@ ProtocolLayer::ProtocolLayer() : ProtocolLayer(NULL) {
 }
 
 ProtocolLayer::~ProtocolLayer() {
-    if(lowerLayer != NULL) {
-        delete(lowerLayer);
+    if (lowerLayer != NULL) {
+        delete (lowerLayer);
     }
 }
 
@@ -29,7 +29,7 @@ bool ProtocolLayer::send(pdu_t* pdu) {
 
     // Compose the message
     pdu_t* out = this->compose_pdu(pdu);
-    if(out != NULL && lowerLayer != NULL) {
+    if (out != NULL && lowerLayer != NULL) {
         // Pass it to the lower layer
         result = lowerLayer->send(out);
     }
@@ -39,12 +39,10 @@ bool ProtocolLayer::send(pdu_t* pdu) {
 }
 
 bool ProtocolLayer::receive(pdu_t* pdu) {
-    bool result = false;
-
     // Receive a message
-    result = lowerLayer->receive(pdu);
+    bool result = lowerLayer->receive(pdu);
 
-    if(result) {
+    if (result) {
         // Decompose the message
         lowerLayer->decompose_pdu(pdu);
     }
@@ -53,21 +51,21 @@ bool ProtocolLayer::receive(pdu_t* pdu) {
 }
 
 pdu_t* ProtocolLayer::copy_pdu(pdu_t* in, size_t increase) {
-	size_t new_size = in->length + 0;
-	char* new_msg = (char*) malloc(new_size * sizeof(char));
-	pdu_t* out = (pdu_t*) malloc(sizeof(pdu_t));
-	out->message = new_msg;
-	out->length = new_size;
+    size_t new_size = in->length + increase;
+    char* new_msg = (char*) malloc(new_size * sizeof(char));
+    pdu_t* out = (pdu_t*) malloc(sizeof(pdu_t));
+    out->message = new_msg;
+    out->length = new_size;
 
-	return out;
+    return out;
 }
 
 /** Transport Layer **/
 
 pdu_t* TransportLayer::compose_pdu(pdu_t* in) {
-	pdu_t* out = copy_pdu(in, 0);
+    pdu_t* out = copy_pdu(in, 0);
     memcpy(out->message, in->message, in->length);
-	return out;
+    return out;
 }
 
 void TransportLayer::decompose_pdu(pdu_t* in) {
@@ -79,7 +77,7 @@ bool TransportLayer::send(pdu_t* pdu) {
 
     // Compose the message
     pdu_t* out = this->compose_pdu(pdu);
-    if(out != NULL) {
+    if (out != NULL) {
         result = this->bluetooth->bluetooth_write(pdu->message, pdu->length);
     }
     free(out);
@@ -89,24 +87,19 @@ bool TransportLayer::send(pdu_t* pdu) {
 
 
 bool TransportLayer::receive(pdu_t* pdu) {
-    char buffer[BLUETHOOTH_BUFFER_SIZE];
+    size_t size = (size_t) bluetooth->bluetooth_read(pdu->message, BLUETHOOTH_BUFFER_SIZE);
+    pdu->length = size;
 
-    size_t size = (size_t) bluetooth->bluetooth_read(buffer, BLUETHOOTH_BUFFER_SIZE);
-
-    if(size > 0) {
-        strncpy(pdu->message, buffer, size);
-        pdu->length = size;
-    }
-    return false;
+    return size > 0;
 }
 
 /** Session Layer **/
 
 
 pdu_t* SessionLayer::compose_pdu(pdu_t* in) {
-	pdu_t* out = copy_pdu(in, 0);
-	memcpy(out->message, in->message, in->length);
-	return out;
+    pdu_t* out = copy_pdu(in, 0);
+    memcpy(out->message, in->message, in->length);
+    return out;
 }
 
 void SessionLayer::decompose_pdu(pdu_t* in) {
@@ -118,9 +111,9 @@ void SessionLayer::decompose_pdu(pdu_t* in) {
 
 
 pdu_t* PresentationLayer::compose_pdu(pdu_t* in) {
-	pdu_t* out = copy_pdu(in, 0);
-	memcpy(out->message, in->message, in->length);
-	return out;
+    pdu_t* out = copy_pdu(in, 0);
+    memcpy(out->message, in->message, in->length);
+    return out;
 }
 
 void PresentationLayer::decompose_pdu(pdu_t* in) {

@@ -10,6 +10,21 @@
 #include "communication/Bluetooth.h"
 #include "Controller.h"
 #include "communication/rfid.h"
+#include <pthread.h>
+
+void start(Controller* controller);
+
+void* thread_bluetooth_main(void* controller) {
+    printf("Starting bluetooth thread...\n");
+    ((Controller*) controller)->runBluetooth();
+    pthread_exit(NULL);
+}
+
+void* thread_rfid_main(void* controller) {
+    printf("Starting RFID thread...\n");
+    ((Controller*) controller)->runRFID();
+    pthread_exit(NULL);
+}
 
 int main(int argc, char* argv[]) {
 
@@ -47,10 +62,25 @@ int main(int argc, char* argv[]) {
             )
     );
     Controller* controller = new Controller(&options, protocol);
-    controller->start();
-    delete(controller);
-    delete(protocol);
+
+    // Start threads
+    start(controller);
+
+    delete (controller);
+    delete (protocol);
 
     //robot_disconnect();
     return 0;
 }
+
+void start(Controller* controller) {
+    pthread_t thread_bluetooth, thread_rfid;
+    pthread_create(&thread_rfid, NULL, thread_rfid_main, controller);
+    pthread_create(&thread_bluetooth, NULL, thread_bluetooth_main, controller);
+
+    while(1) {
+    }
+
+    pthread_exit(NULL);
+}
+
