@@ -22,6 +22,7 @@ void Controller::runBluetooth() {
         char bluetooth_message[BLUETHOOTH_BUFFER_SIZE];
         pdu_t bluetooth_data;
         bluetooth_data.message = bluetooth_message;
+        bluetooth_data.length = BLUETHOOTH_BUFFER_SIZE;
 
         this->protocol->receive(&bluetooth_data);
 

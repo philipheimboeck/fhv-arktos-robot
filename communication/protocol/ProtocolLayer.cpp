@@ -87,8 +87,11 @@ bool TransportLayer::send(pdu_t* pdu) {
 
 
 bool TransportLayer::receive(pdu_t* pdu) {
-    size_t size = (size_t) bluetooth->bluetooth_read(pdu->message, BLUETHOOTH_BUFFER_SIZE);
-    pdu->length = size;
+    ssize_t size = bluetooth->bluetooth_read(pdu->message, pdu->length);
+
+    if(size > 0) {
+        pdu->length = (size_t) size;
+    }
 
     return size > 0;
 }
