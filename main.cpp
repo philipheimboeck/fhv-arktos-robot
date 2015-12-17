@@ -14,7 +14,7 @@
 int main(int argc, char* argv[]) {
 
     // Get the input params
-    char* bluetooth_port = (char*) "/dev/pts/6";
+    char* bluetooth_port = (char*) "/dev/ttyS1";
     char* rfid_port = (char*) "/dev/ttyUSB0";
     if (argc > 1) {
         bluetooth_port = argv[1];
