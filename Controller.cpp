@@ -16,18 +16,24 @@ Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
     fd_rfid = controller_rfid_init(&options->serial_port_options_rfid);
 }
 
+void Controller::runBluetooth() {
+    while (!this->shutdown_requested) {
+        pdu_t bluetooth_data;
 
-void Controller::start() {
-    char rfid_buffer[RFID_LEN];
-    int err = 0;
-    pdu_t bluetooth_data;
-
-    // Loop while no error occurs
-    while (err == 0) {
-
-        // Read from the inputs
-        ssize_t size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_LEN);
         this->protocol->receive(&bluetooth_data);
+
+        if (bluetooth_data.length > 0) {
+            // Bluetooth data received
+        }
+    }
+}
+
+void Controller::runRFID() {
+    while (!this->shutdown_requested) {
+        char rfid_buffer[RFID_LEN];
+
+        // Read from the RFID input device
+        ssize_t size_r = controller_rfid_read(fd_rfid, rfid_buffer, RFID_LEN);
 
         if (size_r > 0) {
             // RFID data received
@@ -35,15 +41,8 @@ void Controller::start() {
             memcpy(location.id, rfid_buffer + 1, RFID_TAG_LENGTH);
 
             // Update location
-            err = update_location(location);
+            update_location(location);
         }
-
-        if (bluetooth_data.length > 0) {
-            // Bluetooth data received
-        }
-
-        // Todo: Write location changes via bluetooth
-        // Todo: Receive input commands and use them to control the robot
     }
 }
 
@@ -70,3 +69,6 @@ bool Controller::notify_server(location_t* location) {
     return this->protocol->send(&pdu);
 }
 
+void Controller::shutdown() {
+    this->shutdown_requested = true;
+}

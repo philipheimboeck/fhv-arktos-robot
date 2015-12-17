@@ -29,10 +29,12 @@ typedef struct {
 class Controller {
 private:
     int fd_rfid;
-    
+
     location_t last_location;
 
     ProtocolLayer* protocol;
+
+    bool shutdown_requested = false;
 
     int compare_locations(location_t* l1, location_t* l2);
 
@@ -55,7 +57,11 @@ private:
 public:
     Controller(robot_options_t* options, ProtocolLayer* protocol);
 
-    void start();
+    void runBluetooth();
+
+    void runRFID();
+
+    void shutdown();
 
 };
 
