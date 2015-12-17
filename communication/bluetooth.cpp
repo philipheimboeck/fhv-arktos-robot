@@ -33,6 +33,6 @@ bool Bluetooth::bluetooth_write(const char* data, size_t data_length) {
         return false;
     }
 
-    write(fd, data, strlen(data));
+    write(fd, data, data_length);
     return true;
 }
