@@ -7,7 +7,6 @@
 #include <string.h>
 #include "ProtocolLayer.h"
 
-
 /** Protocol Layer **/
 
 
@@ -32,8 +31,10 @@ bool ProtocolLayer::send(pdu_t* pdu) {
     if (out != NULL && lowerLayer != NULL) {
         // Pass it to the lower layer
         result = lowerLayer->send(out);
+
+        free(out->message);
+        free(out);
     }
-    free(out);
 
     return result;
 }
@@ -53,19 +54,30 @@ bool ProtocolLayer::receive(pdu_t* pdu) {
 pdu_t* ProtocolLayer::copy_pdu(pdu_t* in, size_t increase) {
     size_t new_size = in->length + increase;
     char* new_msg = (char*) malloc(new_size * sizeof(char));
-    pdu_t* out = (pdu_t*) malloc(sizeof(pdu_t));
-    out->message = new_msg;
-    out->length = new_size;
+    if(new_msg > 0) {
+        pdu_t* out = (pdu_t*) malloc(sizeof(pdu_t));
 
-    return out;
+        if(out > 0) {
+            out->message = new_msg;
+            out->length = new_size;
+
+            return out;
+        }
+    }
+
+    return NULL;
 }
 
 /** Transport Layer **/
 
 pdu_t* TransportLayer::compose_pdu(pdu_t* in) {
     pdu_t* out = copy_pdu(in, 0);
-    memcpy(out->message, in->message, in->length);
-    return out;
+    if(out != NULL) {
+        memcpy(out->message, in->message, in->length);
+        return out;
+    }
+
+    return NULL;
 }
 
 void TransportLayer::decompose_pdu(pdu_t* in) {
@@ -78,7 +90,7 @@ bool TransportLayer::send(pdu_t* pdu) {
     // Compose the message
     pdu_t* out = this->compose_pdu(pdu);
     if (out != NULL) {
-        result = this->bluetooth->bluetooth_write(pdu->message, pdu->length);
+        result = this->bluetooth->bluetooth_write((char*)pdu->message, pdu->length);
     }
     free(out);
 
@@ -87,10 +99,11 @@ bool TransportLayer::send(pdu_t* pdu) {
 
 
 bool TransportLayer::receive(pdu_t* pdu) {
-    ssize_t size = bluetooth->bluetooth_read(pdu->message, pdu->length);
+    ssize_t size = bluetooth->bluetooth_read((char*)pdu->message, pdu->length);
 
-    if(size > 0) {
+    if (size > 0) {
         pdu->length = (size_t) size;
+        decompose_pdu(pdu);
     } else {
         pdu->length = 0;
     }
@@ -103,8 +116,11 @@ bool TransportLayer::receive(pdu_t* pdu) {
 
 pdu_t* SessionLayer::compose_pdu(pdu_t* in) {
     pdu_t* out = copy_pdu(in, 0);
-    memcpy(out->message, in->message, in->length);
-    return out;
+    if(out != NULL) {
+        memcpy(out->message, in->message, in->length);
+        return out;
+    }
+    return NULL;
 }
 
 void SessionLayer::decompose_pdu(pdu_t* in) {
@@ -117,11 +133,59 @@ void SessionLayer::decompose_pdu(pdu_t* in) {
 
 pdu_t* PresentationLayer::compose_pdu(pdu_t* in) {
     pdu_t* out = copy_pdu(in, 0);
-    memcpy(out->message, in->message, in->length);
-    return out;
+    if(out != NULL) {
+        memcpy(out->message, in->message, in->length);
+        return out;
+    }
+    return NULL;
 }
 
 void PresentationLayer::decompose_pdu(pdu_t* in) {
+
+    if (in->length > 8) {
+        // Create the different tuples out of the message
+        tuple_t* tuple = (tuple_t*) malloc(sizeof(tuple_t));
+        if(tuple <= 0) {
+            return;
+        }
+
+        char* message = (char*)in->message;
+
+        char version[2];
+        version[0] = message[0];
+        version[1] = message[1];
+
+        char size_key[3];
+        size_key[0] = message[2];
+        size_key[1] = message[3];
+        size_key[2] = message[4];
+
+        char size_data[3];
+        size_data[0] = message[5];
+        size_data[1] = message[6];
+        size_data[2] = message[7];
+
+        int isize_key = atoi(size_key);
+        int isize_data = atoi(size_data);
+
+        if (isize_data + isize_key <= 120 && isize_data > 0 && isize_key > 0) {
+
+            // Split and copy the data
+            memcpy(tuple->data, message + 8, isize_key);
+            tuple->data[isize_key] = '\0';
+            tuple->data_start = tuple->data + isize_key + 1;
+            memcpy(tuple->data_start, message + 8 + isize_key, isize_data);
+            tuple->data[isize_data + isize_data + 1] = '\0';
+
+            // Free the buffer
+            free(in->message);
+
+            // Set the new data
+            in->message = tuple;
+            in->length = (size_t) (isize_data + isize_key + 1);
+        }
+    }
+
     return;
 }
 
@@ -131,8 +195,11 @@ void PresentationLayer::decompose_pdu(pdu_t* in) {
 
 pdu_t* ApplicationLayer::compose_pdu(pdu_t* in) {
     pdu_t* out = copy_pdu(in, 0);
-    memcpy(out->message, in->message, in->length);
-    return out;
+    if(out != NULL) {
+        memcpy(out->message, in->message, in->length);
+        return out;
+    }
+    return NULL;
 }
 
 void ApplicationLayer::decompose_pdu(pdu_t* in) {

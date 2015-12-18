@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "../general.h"
 
-#define BLUETHOOTH_BUFFER_SIZE 1024
+#define BLUETHOOTH_BUFFER_SIZE 128
 
 class Bluetooth {
 

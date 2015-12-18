@@ -8,7 +8,14 @@
 #include "../Bluetooth.h"
 
 typedef struct {
-    char* message;
+    char data[122];
+    char *data_start;
+} tuple_t;
+
+char* tuple_get_key(tuple_t* tuple);
+
+typedef struct {
+    void* message;
     size_t length;
 } pdu_t;
 

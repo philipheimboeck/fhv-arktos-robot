@@ -3,10 +3,9 @@
 //
 
 #include <string.h>
+#include <stdlib.h>
 #include "Controller.h"
 #include "communication/rfid.h"
-
-namespace communication;
 
 Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
     this->protocol = protocol;
@@ -20,19 +19,27 @@ Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
 
 void Controller::runBluetooth() {
     while (!this->shutdown_requested) {
-        char bluetooth_message[BLUETHOOTH_BUFFER_SIZE];
-        pdu_t bluetooth_data;
-        bluetooth_data.message = bluetooth_message;
-        bluetooth_data.length = BLUETHOOTH_BUFFER_SIZE;
+        char* bluetooth_buffer = (char*) malloc(BLUETHOOTH_BUFFER_SIZE * sizeof(char));
+        pdu_t* bluetooth_data = (pdu_t*) malloc(sizeof(pdu_t));
 
-        this->protocol->receive(&bluetooth_data);
+        // Could reserve data?
+        if (bluetooth_buffer > 0 && bluetooth_data > 0) {
 
-        if (bluetooth_data.length > 0) {
-        	printf("received");
-        	bluetooth_data.message[bluetooth_data.length-1] = '\0';
-        	printf("received bluetooth data: %s", bluetooth_data.message);
-            // Bluetooth data received
+            bluetooth_data->message = bluetooth_buffer;
+            bluetooth_data->length = BLUETHOOTH_BUFFER_SIZE;
+
+            this->protocol->receive(bluetooth_data);
+
+            if (bluetooth_data->length > 0) {
+                // Bluetooth data received
+                tuple_t* data = (tuple_t*) bluetooth_data->message;
+                printf("Key: %s; Data: %s\n", data->data, data->data_start);
+            }
         }
+
+        // Free the allocated data
+        free(bluetooth_data->message);
+        free(bluetooth_data);
     }
 }
 
