@@ -44,6 +44,9 @@ int rfid_init(serial_port_options_t* options) {
 }
 
 ssize_t rfid_read(int fd, char* buffer, size_t buffer_size) {
+	if(fd < 0) {
+		return 0;
+	}
     // init input set
     fd_set input;
     FD_ZERO(&input);

@@ -32,8 +32,34 @@ void Controller::runBluetooth() {
 
             if (bluetooth_data->length > 0) {
                 // Bluetooth data received
+
                 tuple_t* data = (tuple_t*) bluetooth_data->message;
-                printf("Key: %s; Data: %s\n", data->data, data->data_start);
+
+                // Execute bluetooth command
+                if(strcmp(data->data, "drive") == 0) {
+
+                    // Find the values
+                    char left[4];
+                    char right[4];
+                    size_t separator = 0;
+                    size_t data_length = (bluetooth_data->length - (data->data_start - data->data));
+
+                    while(*(data->data_start + separator) != ',' && separator < data_length) {
+                        ++separator;
+                    }
+
+                    if(data->data_start[separator] == ',') {
+                        // Separator found
+                        strncpy(left, data->data_start, separator);
+                        strncpy(right, data->data_start + separator + 1, 4);
+
+                        // Drive
+                        int l = atoi(left);
+                        int r = atoi(right);
+
+                        // Todo: Drive left and Drive right
+                    }
+                }
             }
         }
 
