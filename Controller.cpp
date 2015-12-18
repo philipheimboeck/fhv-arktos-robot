@@ -5,7 +5,8 @@
 #include <string.h>
 #include "Controller.h"
 #include "communication/rfid.h"
-#include "communication/protocol/ProtocolLayer.h"
+
+namespace communication;
 
 Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
     this->protocol = protocol;
