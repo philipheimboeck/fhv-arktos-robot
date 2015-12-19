@@ -19,12 +19,13 @@ Controller::Controller(robot_options_t* options, communication::CommunicationCli
     controller_drive_left = options->callbacks.controller_drive_left;
     controller_drive_right = options->callbacks.controller_drive_right;
 
-    std::function<void(int,int)> callback = std::bind(&Controller::drive, this, std::placeholders::_1, std::placeholders::_2);
-    client->setDriveCallback(callback);
-
     // Initialize the ports
     fd_rfid = controller_rfid_init(&options->serial_port_options_rfid);
 
+    if (this->client != NULL) {
+        std::function<void(int,int)> callback = std::bind(&Controller::drive, this, std::placeholders::_1, std::placeholders::_2);
+        client->setDriveCallback(callback);
+    }
     this->controller_drive_init();
 }
 
@@ -77,7 +78,7 @@ int Controller::compare_locations(location_t* l1, location_t* l2) {
 }
 
 bool Controller::notify_server(location_t* location) {
-	return this->client->sendLocation(location);
+	return this->client != NULL ? this->client->sendLocation(location) : false;
 }
 
 void Controller::shutdown() {

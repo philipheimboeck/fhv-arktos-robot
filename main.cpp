@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
     communication::CommunicationClient* client = NULL;
     try {
     	client = new communication::CommunicationClient(bluetooth_options);
-    } catch (char* error) {
-    	printf("Could not create communication client: %s\n", error);
+    } catch (int error) {
+    	printf("Could not create communication client: %d\n", error);
     }
 
     Controller* controller = new Controller(&options, client);
