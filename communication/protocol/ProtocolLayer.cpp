@@ -74,6 +74,7 @@ pdu_t* ProtocolLayer::copyPdu(pdu_t* in, size_t increase) {
 
 pdu_t* TransportLayer::composePdu(pdu_t* in) {
     pdu_t* out = copyPdu(in, 0);
+
     if(out != NULL) {
         memcpy(out->message, in->message, in->length);
         return out;
@@ -94,6 +95,7 @@ bool TransportLayer::sendData(pdu_t* pdu) {
     if (out != NULL) {
         result = this->bluetooth->bluetooth_write((char*)pdu->message, pdu->length);
     }
+    free(out->message);
     free(out);
 
     return result;
@@ -134,17 +136,38 @@ void SessionLayer::decomposePdu(pdu_t* in) {
 
 
 pdu_t* PresentationLayer::composePdu(pdu_t* in) {
-    pdu_t* out = copyPdu(in, 0);
-    if(out != NULL) {
-        memcpy(out->message, in->message, in->length);
-        return out;
-    }
+	tuple_t* tuple = (tuple_t*)in->message;
+	size_t key_size = strlen(tuple->data);
+	size_t data_size = strlen(tuple->data_start);
+	size_t package_size = 8 + key_size + data_size;
+
+	char* message = (char*)malloc(package_size*sizeof(char));
+	pdu_t* out = (pdu_t*)malloc(sizeof(pdu_t));
+	if(message > 0 && out > 0) {
+		// Create the message
+		std::string key_size_str = std::to_string(key_size);
+		std::string data_size_str = std::to_string(data_size);
+
+		strcpy(message, "01");	// Version [0,1]
+		strcpy(message+2, key_size_str.c_str()); // Key Size [2,3,4]
+		strcpy(message+5, data_size_str.c_str()); // Data Size [5, 6, 7]
+		strcpy(message+8, tuple->data); // Key
+		strcpy(message+8+key_size, tuple->data_start); // Data
+
+		// Return the new pdu object
+		out->message = message;
+		out->length = package_size;
+
+		return out;
+	}
+
     return NULL;
 }
 
 void PresentationLayer::decomposePdu(pdu_t* in) {
 
-    if (in->length > 8) {
+	// Package min length is 10 (8 bytes header, 1 byte key, 1 byte data)
+    if (in->length > 10) {
         // Create the different tuples out of the message
         tuple_t* tuple = (tuple_t*) malloc(sizeof(tuple_t));
         if(tuple <= 0) {
