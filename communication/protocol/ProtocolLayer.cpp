@@ -47,7 +47,7 @@ bool ProtocolLayer::receiveData(pdu_t* pdu) {
 
     if (result) {
         // Decompose the message
-        lowerLayer->decomposePdu(pdu);
+        this->decomposePdu(pdu);
     }
 
     return result;
