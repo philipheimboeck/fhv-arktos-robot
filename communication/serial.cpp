@@ -3,9 +3,12 @@
 //
 
 #include "serial.h"
-#include "../general.h"
 
 #include <string.h>
+#include <termios.h>
+#include <cerrno>
+
+#include "../general.h"
 
 int set_interface_attribs(int fd, speed_t speed, int parity) {
     struct termios tty;

@@ -5,88 +5,83 @@
 #ifndef ARCTOS_ROBOT_PROTOCOLLAYER_H
 #define ARCTOS_ROBOT_PROTOCOLLAYER_H
 
-#include "../Bluetooth.h"
+#include <stddef.h>
 
-typedef struct {
-    char data[122];
-    char *data_start;
-} tuple_t;
+#include "../bluetooth.h"
 
-char* tuple_get_key(tuple_t* tuple);
+namespace communication {
 
-typedef struct {
-    void* message;
-    size_t length;
-} pdu_t;
+	typedef struct {
+		char data[122];
+		char *data_start;
+	} tuple_t;
 
-class ProtocolLayer {
-protected:
-    ProtocolLayer* lowerLayer;
-    virtual pdu_t* compose_pdu(pdu_t* in) = 0;
-    virtual void decompose_pdu(pdu_t* in) = 0;
-    pdu_t* copy_pdu(pdu_t* in, size_t increase);
+	char* tuple_get_key(tuple_t* tuple);
 
-public:
-    ProtocolLayer(ProtocolLayer* lower);
-    ProtocolLayer();
-    virtual ~ProtocolLayer();
+	typedef struct {
+		void* message;
+		size_t length;
+	} pdu_t;
 
-    virtual bool send(pdu_t* pdu);
-    virtual bool receive(pdu_t* pdu);
-};
+	class ProtocolLayer {
+	protected:
+		ProtocolLayer* lowerLayer;
+		virtual pdu_t* composePdu(pdu_t* in) = 0;
+		virtual void decomposePdu(pdu_t* in) = 0;
+		pdu_t* copyPdu(pdu_t* in, size_t increase);
 
-class ApplicationLayer : public ProtocolLayer {
+	public:
+		ProtocolLayer(ProtocolLayer* lower);
+		ProtocolLayer();
+		virtual ~ProtocolLayer();
 
-    virtual pdu_t* compose_pdu(pdu_t* in);
+		virtual bool sendData(pdu_t* pdu);
+		virtual bool receiveData(pdu_t* pdu);
+	};
 
-    virtual void decompose_pdu(pdu_t* in);
+	class PresentationLayer : public ProtocolLayer {
 
-public:
-    ApplicationLayer(ProtocolLayer* lower) : ProtocolLayer(lower) { }
-};
+		virtual pdu_t* composePdu(pdu_t* in) override;
 
-class PresentationLayer : public ProtocolLayer {
+		virtual void decomposePdu(pdu_t* in) override;
 
-    virtual pdu_t* compose_pdu(pdu_t* in) override;
+	public:
+		PresentationLayer(ProtocolLayer* lower) : ProtocolLayer(lower) { }
+	};
 
-    virtual void decompose_pdu(pdu_t* in) override;
+	class SessionLayer : public ProtocolLayer {
 
-public:
-    PresentationLayer(ProtocolLayer* lower) : ProtocolLayer(lower) { }
-};
+		virtual pdu_t* composePdu(pdu_t* in) override;
 
-class SessionLayer : public ProtocolLayer {
+		virtual void decomposePdu(pdu_t* in) override;
 
-    virtual pdu_t* compose_pdu(pdu_t* in) override;
+	public:
+		SessionLayer(ProtocolLayer* lower) : ProtocolLayer(lower) { }
+	};
 
-    virtual void decompose_pdu(pdu_t* in) override;
+	class TransportLayer : public ProtocolLayer {
+	private:
+		Bluetooth* bluetooth;
 
-public:
-    SessionLayer(ProtocolLayer* lower) : ProtocolLayer(lower) { }
-};
+	protected:
+		virtual pdu_t* composePdu(pdu_t* in) override;
 
-class TransportLayer : public ProtocolLayer {
-private:
-    Bluetooth* bluetooth;
+		virtual void decomposePdu(pdu_t* in) override;
 
-protected:
-    virtual pdu_t* compose_pdu(pdu_t* in) override;
+	public:
+		TransportLayer(Bluetooth* bluetooth) : ProtocolLayer() {
+			this->bluetooth = bluetooth;
+		}
 
-    virtual void decompose_pdu(pdu_t* in) override;
+		virtual ~TransportLayer() {
+			delete(bluetooth);
+		}
 
-public:
-    TransportLayer(Bluetooth* bluetooth) : ProtocolLayer() {
-        this->bluetooth = bluetooth;
-    }
+		virtual bool sendData(pdu_t* pdu) override;
 
-    virtual ~TransportLayer() {
-        delete(bluetooth);
-    }
-
-    virtual bool send(pdu_t* pdu) override;
-
-private:
-    virtual bool receive(pdu_t* pdu) override;
-};
+	private:
+		virtual bool receiveData(pdu_t* pdu) override;
+	};
+}
 
 #endif //ARCTOS_ROBOT_PROTOCOLLAYER_H

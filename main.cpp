@@ -4,13 +4,15 @@
  * Created on: 22.10.15
  *     Author: Nino Schoch
  */
-#include <sys/fcntl.h>
-#include <string.h>
-#include "communication/serial.h"
-#include "communication/Bluetooth.h"
-#include "Controller.h"
-#include "communication/rfid.h"
+
 #include <pthread.h>
+#include <termios.h>
+#include <cstdio>
+
+#include "communication/CommunicationClient.h"
+#include "communication/rfid.h"
+#include "controller.h"
+#include "general.h"
 
 void start(Controller* controller);
 
@@ -52,22 +54,14 @@ int main(int argc, char* argv[]) {
     bluetooth_options.port_name = bluetooth_port;
     bluetooth_options.speed = B9600;
 
-    ProtocolLayer* protocol = new ApplicationLayer(
-            new PresentationLayer(
-                    new SessionLayer(
-                            new TransportLayer(
-                                    new Bluetooth(&bluetooth_options)
-                            )
-                    )
-            )
-    );
-    Controller* controller = new Controller(&options, protocol);
+    communication::CommunicationClient* client = new communication::CommunicationClient(bluetooth_options);
+    Controller* controller = new Controller(&options, client);
 
     // Start threads
     start(controller);
 
     delete (controller);
-    delete (protocol);
+    delete (client);
 
     //robot_disconnect();
     return 0;

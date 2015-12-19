@@ -2,10 +2,16 @@
 // Created by Philip Heimböck (Privat) on 09.12.15.
 //
 
+#include "bluetooth.h"
+
+#include <fcntl.h>
 #include <string.h>
-#include <sys/fcntl.h>
-#include "Bluetooth.h"
+#include <unistd.h>
+#include <cerrno>
+
 #include "serial.h"
+
+using namespace communication;
 
 Bluetooth::Bluetooth(serial_port_options_t* options) {
     fd = open(options->port_name, O_RDWR | O_NOCTTY | O_SYNC);

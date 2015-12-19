@@ -3,9 +3,12 @@
 //
 
 #include "rfid.h"
-#include <unistd.h> // for read & write functions
+
 #include <fcntl.h> // for open related function
 #include <sys/select.h> // fd_set functions
+#include <sys/time.h>
+#include <termios.h>
+
 #include "serial.h"
 
 int rfid_init(serial_port_options_t* options) {

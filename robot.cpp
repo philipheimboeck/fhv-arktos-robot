@@ -5,8 +5,9 @@
  *     Author: Nino Schoch
  */
 
-#include "includes/DMCC/DMCC.h"
 #include "robot.h"
+
+#include "includes/DMCC/DMCC.h"
 
 static int session = -1; 				///> Session received by DMCCstart
 

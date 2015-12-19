@@ -3,12 +3,14 @@
 //
 
 #include <string.h>
-#include <stdlib.h>
-#include "Controller.h"
-#include "communication/rfid.h"
+#include <sys/types.h>
 
-Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
-    this->protocol = protocol;
+#include "communication/CommunicationClient.h"
+#include "communication/rfid.h"
+#include "controller.h"
+
+Controller::Controller(robot_options_t* options, communication::CommunicationClient* client) {
+    this->client = client;
 
     controller_rfid_init = options->callbacks.controller_rfid_init;
     controller_rfid_read = options->callbacks.controller_rfid_read;
@@ -19,53 +21,7 @@ Controller::Controller(robot_options_t* options, ProtocolLayer* protocol) {
 
 void Controller::runBluetooth() {
     while (!this->shutdown_requested) {
-        char* bluetooth_buffer = (char*) malloc(BLUETHOOTH_BUFFER_SIZE * sizeof(char));
-        pdu_t* bluetooth_data = (pdu_t*) malloc(sizeof(pdu_t));
-
-        // Could reserve data?
-        if (bluetooth_buffer > 0 && bluetooth_data > 0) {
-
-            bluetooth_data->message = bluetooth_buffer;
-            bluetooth_data->length = BLUETHOOTH_BUFFER_SIZE;
-
-            this->protocol->receive(bluetooth_data);
-
-            if (bluetooth_data->length > 0) {
-                // Bluetooth data received
-
-                tuple_t* data = (tuple_t*) bluetooth_data->message;
-
-                // Execute bluetooth command
-                if(strcmp(data->data, "drive") == 0) {
-
-                    // Find the values
-                    char left[4];
-                    char right[4];
-                    size_t separator = 0;
-                    size_t data_length = (bluetooth_data->length - (data->data_start - data->data));
-
-                    while(*(data->data_start + separator) != ',' && separator < data_length) {
-                        ++separator;
-                    }
-
-                    if(data->data_start[separator] == ',') {
-                        // Separator found
-                        strncpy(left, data->data_start, separator);
-                        strncpy(right, data->data_start + separator + 1, 4);
-
-                        // Drive
-                        int l = atoi(left);
-                        int r = atoi(right);
-
-                        // Todo: Drive left and Drive right
-                    }
-                }
-            }
-        }
-
-        // Free the allocated data
-        free(bluetooth_data->message);
-        free(bluetooth_data);
+    	this->client->retrieveData();
     }
 }
 
@@ -104,10 +60,7 @@ int Controller::compare_locations(location_t* l1, location_t* l2) {
 }
 
 bool Controller::notify_server(location_t* location) {
-    pdu_t pdu;
-    pdu.message = location->id;
-    pdu.length = RFID_TAG_LENGTH;
-    return this->protocol->send(&pdu);
+	return this->client->sendLocation(location);
 }
 
 void Controller::shutdown() {

@@ -5,8 +5,9 @@
 #ifndef ARCTOS_ROBOT_RFID_H
 #define ARCTOS_ROBOT_RFID_H
 
-#include <unistd.h>
 #include <stddef.h>
+#include <unistd.h>
+
 #include "../general.h"
 
 #define START_BYTE	0x0A	///< '\n'

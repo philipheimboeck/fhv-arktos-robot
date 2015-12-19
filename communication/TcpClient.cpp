@@ -10,6 +10,7 @@
 #include "TcpClient.h"
 
 TcpClient::TcpClient(const char* host, int port) {
+	this->port = port;
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
         throw "Error while opening the socket!";

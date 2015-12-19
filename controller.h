@@ -5,11 +5,11 @@
 #ifndef ARCTOS_ROBOT_CONTROLLER_H
 #define ARCTOS_ROBOT_CONTROLLER_H
 
-#include <stdio.h>
-#include "general.h"
-#include "communication/protocol/ProtocolLayer.h"
+#include <stddef.h>
+#include <sys/types.h>
 
-#define RFID_TAG_LENGTH 10
+#include "general.h"
+#include "communication/CommunicationClient.h"
 
 typedef struct {
     int (* controller_rfid_init)(serial_port_options_t* options);
@@ -22,10 +22,6 @@ typedef struct {
     robot_callbacks_t callbacks;
 } robot_options_t;
 
-typedef struct {
-    char id[RFID_TAG_LENGTH];
-} location_t;
-
 class Controller {
 private:
 
@@ -35,7 +31,7 @@ private:
 
     location_t last_location;
 
-    ProtocolLayer* protocol;
+    communication::CommunicationClient* client;
 
     bool shutdown_requested = false;
 
@@ -60,7 +56,7 @@ private:
     ssize_t (* controller_rfid_read)(int fd, char*, size_t);
 
 public:
-    Controller(robot_options_t* options, ProtocolLayer* protocol);
+    Controller(robot_options_t* options, communication::CommunicationClient* client);
 
     void runBluetooth();
 
