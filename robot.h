@@ -12,9 +12,9 @@
 #define MOTOR_LEFT		1    	///> ID of left motor
 #define MOTOR_RIGHT		2     	///> ID of right motor
 
-#define VELOCITY_MAX	3000  	///> Max velocity of robot
-#define VELOCITY_MIN	-3000 	///> Min velocity of robot
-#define VELOCITY_STOP	0    	///> Stop velocity of robot
+#define VELOCITY_MAX	10000	///> Max velocity of robot
+#define VELOCITY_MIN	-10000	///> Min velocity of robot
+#define VELOCITY_STOP	0		///> Stop velocity of robot
 
 /**
  * Initialises robot
@@ -34,11 +34,13 @@ void robot_disconnect();
 
 /**
  * Set left motor to given velocity in ratio to max velocity
+ * -100 to 100 percent
  */
 void robot_drive_left(double input);
 
 /**
  * Set right motor to given velocity in ratio to max velocity
+ * -100 to 100 percent
  */
 void robot_drive_right(double input);
 

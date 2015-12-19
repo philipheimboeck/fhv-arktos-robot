@@ -11,6 +11,7 @@
 #include "Controller.h"
 #include "communication/rfid.h"
 #include <pthread.h>
+#include "robot.h"
 
 void start(Controller* controller);
 
@@ -37,10 +38,6 @@ int main(int argc, char* argv[]) {
     if (argc > 2) {
         rfid_port = argv[2];
     }
-
-    //robot_init();
-    //robot_drive_left(250);
-    //robot_turn_left();
 
     robot_options_t options;
     options.callbacks.controller_rfid_init = rfid_init;
@@ -69,7 +66,6 @@ int main(int argc, char* argv[]) {
     delete (controller);
     delete (protocol);
 
-    //robot_disconnect();
     return 0;
 }
 
@@ -77,6 +73,14 @@ void start(Controller* controller) {
     pthread_t thread_bluetooth, thread_rfid;
     pthread_create(&thread_rfid, NULL, thread_rfid_main, controller);
     pthread_create(&thread_bluetooth, NULL, thread_bluetooth_main, controller);
+
+//    robot_init();
+//    robot_drive_right(-50);
+//    robot_drive_left(-50);
+//    robot_drive_right(50);
+//    robot_drive_left(50);
+//    robot_stop();
+//    robot_disconnect();
 
     while(1) {
     }
