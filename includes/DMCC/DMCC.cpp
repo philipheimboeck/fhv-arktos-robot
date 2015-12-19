@@ -272,7 +272,7 @@ int DMCCstart(unsigned char capeAddr)
 {
     capeAddr+=0x2c;
     char filename[20];
-    strcpy(filename,"/dev/i2c-1");
+    strcpy(filename,"/dev/i2c-2");
 
     int fd;
 
