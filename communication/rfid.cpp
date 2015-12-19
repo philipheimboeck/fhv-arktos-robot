@@ -14,7 +14,7 @@
 int rfid_init(serial_port_options_t* options) {
 	// file descriptor for the port
 	int fd;
-	if ((fd = open(options->port_name, O_RDONLY | O_NOCTTY)) == -1) {
+	if ((fd = open(options->port_name.c_str(), O_RDONLY | O_NOCTTY)) == -1) {
 		error_message("RFID: Unable to open port");
 		return -1;
 	}

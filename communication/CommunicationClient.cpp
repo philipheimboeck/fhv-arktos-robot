@@ -108,6 +108,6 @@ bool CommunicationClient::sendLocation(location_t* location) {
 	return result;
 }
 
-void CommunicationClient::setDriveCallback(void (*callback)(int left, int right)) {
+void CommunicationClient::setDriveCallback(std::function<void(int,int)> callback) {
 	this->driveCallback = callback;
 }

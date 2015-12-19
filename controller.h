@@ -15,6 +15,9 @@ typedef struct {
     int (* controller_rfid_init)(serial_port_options_t* options);
 
     ssize_t (* controller_rfid_read)(int fd, char*, size_t);
+    void (*controller_drive_init)(void);
+    void (*controller_drive_left)(double);
+    void (*controller_drive_right)(double);
 } robot_callbacks_t;
 
 typedef struct {
@@ -50,10 +53,16 @@ private:
      */
     int (* controller_rfid_init)(serial_port_options_t* options);
 
+    void drive(int left, int right);
+
     /**
      * Reads the input and saves it into the buffer
      */
     ssize_t (* controller_rfid_read)(int fd, char*, size_t);
+
+    void (*controller_drive_init)(void);
+	void (*controller_drive_left)(double);
+	void (*controller_drive_right)(double);
 
 public:
     Controller(robot_options_t* options, communication::CommunicationClient* client);

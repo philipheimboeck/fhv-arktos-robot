@@ -31,8 +31,8 @@ void* thread_rfid_main(void* controller) {
 int main(int argc, char* argv[]) {
 
     // Get the input params
-    char* bluetooth_port = (char*) "/dev/rfcomm0";
-    char* rfid_port = (char*) "/dev/ttyUSB0";
+    std::string bluetooth_port = "/dev/rfcomm0";
+    std::string rfid_port = "/dev/ttyUSB0";
     if (argc > 1) {
         bluetooth_port = argv[1];
     }

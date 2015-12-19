@@ -8,9 +8,9 @@
 #include <stdio.h>
 
 
-void error_message(const char* message, ...) {
+void error_message(std::string message, ...) {
     va_list argptr;
     va_start(argptr, message);
-    vfprintf(stderr, message, argptr);
+    vfprintf(stderr, message.c_str(), argptr);
     va_end(argptr);
 }

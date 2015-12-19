@@ -2,6 +2,7 @@
 // Created by Philip Heimböck (Privat) on 09.12.15.
 //
 
+#include <functional>
 #include <string.h>
 #include <sys/types.h>
 
@@ -14,9 +15,17 @@ Controller::Controller(robot_options_t* options, communication::CommunicationCli
 
     controller_rfid_init = options->callbacks.controller_rfid_init;
     controller_rfid_read = options->callbacks.controller_rfid_read;
+    controller_drive_init = options->callbacks.controller_drive_init;
+    controller_drive_left = options->callbacks.controller_drive_left;
+    controller_drive_right = options->callbacks.controller_drive_right;
+
+    std::function<void(int,int)> callback = std::bind(&Controller::drive, this, std::placeholders::_1, std::placeholders::_2);
+    client->setDriveCallback(callback);
 
     // Initialize the ports
     fd_rfid = controller_rfid_init(&options->serial_port_options_rfid);
+
+    this->controller_drive_init();
 }
 
 void Controller::runBluetooth() {
@@ -65,4 +74,9 @@ bool Controller::notify_server(location_t* location) {
 
 void Controller::shutdown() {
     this->shutdown_requested = true;
+}
+
+void Controller::drive(int left, int right) {
+	this->controller_drive_left(left);
+	this->controller_drive_right(right);
 }

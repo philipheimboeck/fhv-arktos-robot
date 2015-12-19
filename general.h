@@ -5,12 +5,13 @@
 #ifndef ARCTOS_ROBOT_GENERAL_H
 #define ARCTOS_ROBOT_GENERAL_H
 
+#include <string>
 #include <termios.h>
 
 #define RFID_TAG_LENGTH 10
 
 typedef struct {
-    const char* port_name;
+    std::string port_name;
     speed_t speed;
 } serial_port_options_t;
 
@@ -18,6 +19,6 @@ typedef struct {
     char id[RFID_TAG_LENGTH];
 } location_t;
 
-void error_message(const char* message, ...);
+void error_message(std::string message, ...);
 
 #endif //ARCTOS_ROBOT_GENERAL_H

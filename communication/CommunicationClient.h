@@ -8,6 +8,7 @@
 #ifndef COMMUNICATION_COMMUNICATIONCLIENT_H_
 #define COMMUNICATION_COMMUNICATIONCLIENT_H_
 
+#include <functional>
 #include "../general.h"
 #include "protocol/ProtocolLayer.h"
 
@@ -17,13 +18,13 @@ namespace communication {
 
 	private:
 		ProtocolLayer* connection;
-		void (*driveCallback)(int left, int right);
+		std::function<void(int,int)> driveCallback;
 
 	public:
 		CommunicationClient(serial_port_options_t serial_options);
 		virtual ~CommunicationClient();
 
-		void setDriveCallback(void (*callback)(int left, int right));
+		void setDriveCallback(std::function<void(int,int)>);
 
 		void retrieveData(void);
 		bool sendLocation(location_t* location);
