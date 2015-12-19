@@ -16,7 +16,7 @@ using namespace communication;
 Bluetooth::Bluetooth(serial_port_options_t* options) {
     fd = open(options->port_name.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
-        error_message("error %d opening %s: %s", errno, options->port_name, strerror(errno));
+        error_message("error %d opening %s: %s", errno, options->port_name.c_str(), strerror(errno));
         //throw "error";
         return;
     }
