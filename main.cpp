@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <termios.h>
 #include <cstdio>
+#include <string>
 
 #include "communication/CommunicationClient.h"
 #include "communication/rfid.h"
@@ -40,10 +41,6 @@ int main(int argc, char* argv[]) {
         rfid_port = argv[2];
     }
 
-    //robot_init();
-    //robot_drive_left(250);
-    //robot_turn_left();
-
     robot_options_t options;
     options.callbacks.controller_rfid_init = rfid_init;
     options.callbacks.controller_rfid_read = rfid_read;
@@ -63,7 +60,6 @@ int main(int argc, char* argv[]) {
     delete (controller);
     delete (client);
 
-    //robot_disconnect();
     return 0;
 }
 

@@ -39,6 +39,7 @@ void robot_connect() {
 }
 
 void robot_disconnect() {
+	robot_stop();
     DMCCend(session);
     session = -1;
 }

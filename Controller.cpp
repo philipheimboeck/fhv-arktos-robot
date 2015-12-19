@@ -29,12 +29,20 @@ Controller::Controller(robot_options_t* options, communication::CommunicationCli
 }
 
 void Controller::runBluetooth() {
+	if(this->client == NULL) {
+		return;
+	}
+
     while (!this->shutdown_requested) {
     	this->client->retrieveData();
     }
 }
 
 void Controller::runRFID() {
+	if(this->fd_rfid < 0) {
+		return;
+	}
+
     while (!this->shutdown_requested) {
         char rfid_buffer[RFID_LEN];
 
