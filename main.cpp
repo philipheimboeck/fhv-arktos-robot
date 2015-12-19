@@ -51,7 +51,13 @@ int main(int argc, char* argv[]) {
     bluetooth_options.port_name = bluetooth_port;
     bluetooth_options.speed = B9600;
 
-    communication::CommunicationClient* client = new communication::CommunicationClient(bluetooth_options);
+    communication::CommunicationClient* client = NULL;
+    try {
+    	client = new communication::CommunicationClient(bluetooth_options);
+    } catch (char* error) {
+    	printf("Could not create communication client: %s\n", error);
+    }
+
     Controller* controller = new Controller(&options, client);
 
     // Start threads
