@@ -60,6 +60,9 @@ int main(int argc, char* argv[]) {
     robot_options_t options;
     options.callbacks.controller_rfid_init = rfid_init;
     options.callbacks.controller_rfid_read = rfid_read;
+    options.callbacks.controller_drive_init = robot_init;
+    options.callbacks.controller_drive_left = robot_drive_left;
+    options.callbacks.controller_drive_right = robot_drive_right;
     options.serial_port_options_rfid.port_name = rfid_port;
     options.serial_port_options_rfid.speed = B2400;
 
@@ -70,8 +73,8 @@ int main(int argc, char* argv[]) {
     communication::CommunicationClient* client = NULL;
     try {
     	client = new communication::CommunicationClient(bluetooth_options);
-    } catch (char* error) {
-    	printf("Could not create communication client: %s\n", error);
+    } catch (int error) {
+    	printf("Could not create communication client: %d\n", error);
     }
 
     controller = new Controller(&options, client);
