@@ -55,8 +55,8 @@ void CommunicationClient::retrieveData(void) {
 			if(strcmp(data->data, "drive") == 0) {
 
 				// Find the values
-				char left[4];
-				char right[4];
+				char left[4] = {'\0'};
+				char right[4] = {'\0'};
 				size_t separator = 0;
 				size_t data_length = (bluetooth_data->length - (data->data_start - data->data));
 
