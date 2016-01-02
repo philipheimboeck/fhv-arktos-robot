@@ -200,7 +200,7 @@ void PresentationLayer::decomposePdu(pdu_t* in) {
             tuple->data[isize_key] = '\0';
             tuple->data_start = tuple->data + isize_key + 1;
             memcpy(tuple->data_start, message + 8 + isize_key, isize_data);
-            tuple->data[isize_data + isize_data + 1] = '\0';
+            tuple->data[isize_key + isize_data + 1] = '\0';
 
             // Free the buffer
             free(in->message);
