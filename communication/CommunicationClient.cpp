@@ -97,6 +97,8 @@ bool CommunicationClient::sendLocation(location_t* location) {
 		tuple->data[4] = '\0';
 		tuple->data_start = &tuple->data[5];
 		memcpy(tuple->data_start, location->id, sizeof(tuple->data) - 6);
+		pdu->message = tuple;
+		pdu->length = strlen(tuple->data) + 1 + strlen(tuple->data_start);
 
 		result = this->connection->sendData(pdu);
 	}
