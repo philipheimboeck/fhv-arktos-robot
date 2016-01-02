@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sstream>
+#include <iomanip>
 
 /** Protocol Layer **/
 
@@ -145,12 +147,15 @@ pdu_t* PresentationLayer::composePdu(pdu_t* in) {
 	pdu_t* out = (pdu_t*)malloc(sizeof(pdu_t));
 	if(message > 0 && out > 0) {
 		// Create the message
-		std::string key_size_str = std::to_string(key_size);
-		std::string data_size_str = std::to_string(data_size);
+
+		std::stringstream key_size_stream;
+		std::stringstream data_size_stream;
+		key_size_stream << std::setw(3) << std::setfill('0') << key_size;
+		data_size_stream << std::setw(3) << std::setfill('0') << data_size;
 
 		strcpy(message, "01");	// Version [0,1]
-		strcpy(message+2, key_size_str.c_str()); // Key Size [2,3,4]
-		strcpy(message+5, data_size_str.c_str()); // Data Size [5, 6, 7]
+		strcpy(message+2, key_size_stream.str().c_str()); // Key Size [2, 3, 4]
+		strcpy(message+5, data_size_stream.str().c_str()); // Data Size [5, 6, 7]
 		strcpy(message+8, tuple->data); // Key
 		strcpy(message+8+key_size, tuple->data_start); // Data
 
