@@ -73,6 +73,8 @@ public:
 
     void shutdown();
 
+    void heartbeat();
+
 };
 
 #endif //ARCTOS_ROBOT_CONTROLLER_H

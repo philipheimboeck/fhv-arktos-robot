@@ -28,6 +28,8 @@ namespace communication {
 
 		void retrieveData(void);
 		bool sendLocation(location_t* location);
+
+		void sendHeartbeat(void);
 	};
 }
 

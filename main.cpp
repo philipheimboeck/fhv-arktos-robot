@@ -28,6 +28,13 @@ void* thread_bluetooth_main(void* controller) {
     pthread_exit(NULL);
 }
 
+void* thread_heartbeat_main(void* controller) {
+    printf("Starting heartbeat thread...\n");
+    ((Controller*) controller)->heartbeat();
+    printf("Exiting heartbeat thread...\n");
+    pthread_exit(NULL);
+}
+
 void* thread_rfid_main(void* controller) {
     printf("Starting RFID thread...\n");
     ((Controller*) controller)->runRFID();
@@ -94,13 +101,15 @@ int main(int argc, char* argv[]) {
 }
 
 void start(Controller* controller) {
-    pthread_t thread_bluetooth, thread_rfid;
+    pthread_t thread_bluetooth, thread_rfid, thread_heartbeat;
     pthread_create(&thread_rfid, NULL, thread_rfid_main, controller);
     pthread_create(&thread_bluetooth, NULL, thread_bluetooth_main, controller);
+    pthread_create(&thread_heartbeat, NULL, thread_heartbeat_main, controller);
 
     // Wait for threads to finish
     void* status;
     pthread_join(thread_bluetooth, &status);
     pthread_join(thread_rfid, &status);
+    pthread_join(thread_heartbeat, &status);
 }
 

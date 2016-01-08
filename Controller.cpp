@@ -29,6 +29,17 @@ Controller::Controller(robot_options_t* options, communication::CommunicationCli
     this->controller_drive_init();
 }
 
+void Controller::heartbeat() {
+	if(this->client == NULL) {
+		return;
+	}
+
+    while (!this->shutdown_requested) {
+    	if(this->client != NULL) this->client->sendHeartbeat();
+    	sleep(1);
+    }
+}
+
 void Controller::runBluetooth() {
 	if(this->client == NULL) {
 		return;

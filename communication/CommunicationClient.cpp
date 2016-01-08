@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
 
 #include "bluetooth.h"
 #include "protocol/ProtocolLayer.h"
@@ -108,6 +109,35 @@ bool CommunicationClient::sendLocation(location_t* location) {
 		free(pdu);
 	}
 	return result;
+}
+
+void CommunicationClient::sendHeartbeat(void) {
+	bool result = false;
+	tuple_t* tuple = (tuple_t*) malloc(sizeof(tuple_t));
+	pdu_t* pdu = (pdu_t*) malloc(sizeof(pdu_t));
+
+	if(tuple > 0 && pdu > 0) {
+		strcpy(tuple->data, "live");
+		tuple->data[4] = '\0';
+		tuple->data_start = &tuple->data[5];
+
+		time_t seconds;
+		time(&seconds);
+
+		std::stringstream stringStream;
+		stringStream << seconds;
+
+		memcpy(tuple->data_start, stringStream.str().c_str(), sizeof(tuple->data) - 6);
+		pdu->message = tuple;
+		pdu->length = strlen(tuple->data) + 1 + strlen(tuple->data_start);
+
+		result = this->connection->sendData(pdu);
+	}
+
+	if(pdu > 0) {
+		free(pdu->message);
+		free(pdu);
+	}
 }
 
 void CommunicationClient::setDriveCallback(std::function<void(int,int)> callback) {
