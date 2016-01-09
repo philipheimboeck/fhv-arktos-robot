@@ -10,6 +10,11 @@
 #include <cstdio>
 #include <string>
 #include <signal.h>
+#include <stdexcept>
+#include <exception>
+#include <iostream>
+#include <fstream>
+#include <ctime>
 
 #include "communication/CommunicationClient.h"
 #include "communication/rfid.h"
@@ -43,18 +48,60 @@ void* thread_rfid_main(void* controller) {
 }
 
 void signal_handler(int signal) {
+	// get current time
+	std::time_t time = std::time(NULL);
+	char time_buffer[100];
+	std::strftime(time_buffer, sizeof(time_buffer), "%d.%m.%Y %H:%M:%S", std::localtime(&time));
+
+	std::cerr << time_buffer << ": Error: signal " << signal << std::endl;
+
 	if(controller != NULL) {
 		printf("Shutting down controller...\n");
 		controller->shutdown();
 	}
+
+	std::abort();
+}
+
+void termination_handler() {
+	// get current time
+	std::time_t time = std::time(NULL);
+	char time_buffer[100];
+	std::strftime(time_buffer, sizeof(time_buffer), "%d.%m.%Y %H:%M:%S", std::localtime(&time));
+
+	std::exception_ptr exptr = std::current_exception();
+    if (exptr != 0) {
+		try {
+			std::rethrow_exception(exptr);
+		}
+		catch (std::exception &ex) {
+			std::cerr << time_buffer << ": Terminated due to exception: " << ex.what() << std::endl;
+		}
+    } else {
+        std::cerr << time_buffer << ": Terminated due to unknown reason" << std::endl;
+    }
+
+	if(controller != NULL) {
+		printf("Shutting down controller...\n");
+		controller->shutdown();
+	}
+
+    std::abort();
 }
 
 int main(int argc, char* argv[]) {
 	// Register signal handler
 	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
+    signal(SIGSEGV, signal_handler);
+    std::set_terminate(termination_handler);
 
-    // Get the input params
+	// Redirect cerr to log file
+	std::fstream error_log;
+	error_log.open("/var/log/arctos_error.log", std::fstream::app|std::fstream::out);
+	std::streambuf* error_buffer = std::cerr.rdbuf(error_log.rdbuf());
+
+	// Get the input params
     std::string bluetooth_port = "/dev/rfcomm0";
     std::string rfid_port = "/dev/ttyUSB0";
     if (argc > 1) {
@@ -80,22 +127,24 @@ int main(int argc, char* argv[]) {
     communication::CommunicationClient* client = NULL;
     try {
     	client = new communication::CommunicationClient(bluetooth_options);
+        controller = new Controller(&options, client);
+
+        // Start threads
+        start(controller);
     } catch (int error) {
     	printf("Could not create communication client: %d\n", error);
     }
-
-    controller = new Controller(&options, client);
-
-    // Start threads
-    start(controller);
 
     // Exit process
     delete (controller);
     delete (client);
 
     // Stop the robot
-    robot_drive_left(0);
-    robot_drive_right(0);
+    robot_stop();
+
+    // Restore the cerr stream
+    std::cerr.rdbuf(error_buffer);
+    error_log.close();
 
     return 0;
 }

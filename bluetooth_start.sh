@@ -2,6 +2,15 @@
 #/etc/init.d/bluetooth restart
 
 ###
+# Check if script is already running
+###
+scriptRunning=$(pidof -x $0 -o $$)
+if [[ ! -z $scriptRunning ]]
+then
+	exit 0
+fi
+
+###
 # FIXME
 # Change to correct bluetooth mac addr
 ###
