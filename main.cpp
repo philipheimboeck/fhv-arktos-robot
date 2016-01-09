@@ -60,6 +60,9 @@ void signal_handler(int signal) {
 		controller->shutdown();
 	}
 
+    // Stop the robot
+    robot_stop();
+
 	std::abort();
 }
 
@@ -85,6 +88,9 @@ void termination_handler() {
 		printf("Shutting down controller...\n");
 		controller->shutdown();
 	}
+
+    // Stop the robot
+    robot_stop();
 
     std::abort();
 }
